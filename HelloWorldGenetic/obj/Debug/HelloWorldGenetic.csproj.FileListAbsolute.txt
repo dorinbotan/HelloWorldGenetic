@@ -1,0 +1,6 @@
+c:\users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\bin\Debug\HelloWorldGenetic.exe.config
+C:\Users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\bin\Debug\HelloWorldGenetic.exe
+C:\Users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\bin\Debug\HelloWorldGenetic.pdb
+C:\Users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\obj\Debug\HelloWorldGenetic.csprojResolveAssemblyReference.cache
+C:\Users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\obj\Debug\HelloWorldGenetic.exe
+C:\Users\db\documents\visual studio 2015\Projects\HelloWorldGenetic\HelloWorldGenetic\obj\Debug\HelloWorldGenetic.pdb
