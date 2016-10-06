@@ -9,26 +9,16 @@ namespace HelloWorldGenetic
     {                
         static void Main(string[] args)
         {
-            // создай популяцию
             Population population = new Population();
-                                             
-            for(int i = 0; i < 8192; i++)
+
+            while (true)
             {
-                // измерь пригодность
-                population.CalculateFitness();
+                Console.WriteLine(population.GetBest());
 
-                // отсортируй по пригодности                                       
-                population.Sort();
+                if (population.GetBest().Fitness == 0)
+                    break;                           
 
-                // покажи лучшего
-                Console.WriteLine(population.citizens[0]);
-
-                // если лучший найден, break
-                if (!population.citizens[0].Equals("Hello world!"))
-                    break;
-
-                // спаривай популяцию
-                
+                population.Progress();
             }
 
             Console.ReadLine();
@@ -37,79 +27,114 @@ namespace HelloWorldGenetic
 
     class Population
     {
-        const int POP_SIZE = 2048;
-        const string TEXT = "Hello world!";
+        private int pop_size = 2048;
+        private int elite_size = 100;
+        private double mutation_rate = 0.2;
+        public string text = "Hello world!";
 
-        Random random = new Random();
-                                       
+        private Random randomizer;
+
         public List<Citizen> citizens { get; set; }
-
+                                      
         public Population()
         {
-            citizens = new List<Citizen>(POP_SIZE);               
+            randomizer = new Random();
 
-            for (int i = 0; i < POP_SIZE; i++)
+            CreateInitPopulation();    
+        }                                  
+
+        private void CreateInitPopulation()
+        {
+            citizens = new List<Citizen>(pop_size);
+            
+            for(int i = 0; i < pop_size; i++)
             {
-                Citizen citizen = new Citizen();
+                Citizen c = new Citizen();
 
-                for (int j = 0; j < TEXT.Length; j++)
-                    citizen.str += (char)random.Next(33, 127);
+                for(int j = 0; j < text.Length; j++)
+                    c.Str += (char)(randomizer.Next(32, 127));
 
-                citizens.Add(citizen);
+                citizens.Add(c);
             }
 
-            citizens = citizens.OrderByDescending(o => o.fitness).ToList();   
-        }               
+            CalculateFitness();
+            Sort();
+        }
 
-        public void CalculateFitness()
+        private void CalculateFitness()
         {
             int fitness;
-
+                
             for(int i = 0; i < citizens.Count; i++)
             {
                 fitness = 0;
 
-                for (int j = 0; j < TEXT.Length; j++)
-                    fitness += Math.Abs(citizens[i].str[j] - TEXT[j]);
+                for(int j = 0; j < text.Length; j++)           
+                    fitness += Math.Abs(citizens[i].Str[j] - text[j]);
 
-                citizens[i].fitness = fitness;
+                citizens[i].Fitness = fitness;
             }
-        }          
-
-        public void Sort()
-        {
-            citizens = citizens.OrderBy(o => o.fitness).ToList();
         }
-        
-        private List<Citizen> Elitism(List<Citizen> population, int size)
+
+        private void Sort()
         {
-            List<Citizen> toReturn = new List<Citizen>(size);
+            citizens = citizens.OrderBy(o => o.Fitness).ToList();
+        }
 
-            for (int i = 0; i < size; i++)
-                toReturn[i] = population[i];
+        public Citizen GetBest()
+        {
+            return citizens[0];
+        }
 
-            return toReturn;
-        } 
+        public void Progress()
+        {
+            for(int i = elite_size; i < pop_size; i++)
+            {
+                Citizen c1 = citizens[i];
+                Citizen c2 = citizens[randomizer.Next(0, elite_size)];
+                                           
+                Cross(c1, c2);             
+            }
+
+            CalculateFitness();
+            Sort();
+        }
 
         private void Mutate(Citizen citizen)
         {
-            int pos = random.Next(0, TEXT.Length);
-            int delta = random.Next(33, 127);
+            int pos = randomizer.Next(0, text.Length);
+            char mut = (char)randomizer.Next(33, 127);
+            
+            StringBuilder sb = new StringBuilder(citizen.Str);
+            sb[pos] = mut;
+            citizen.Str = sb.ToString();                  
+        }
 
-            StringBuilder sb = new StringBuilder(citizen.str);
-            sb[pos] = (char)((citizen.str[pos] + delta) % 94 + 33);
-            citizen.str = sb.ToString();
+        private void Cross(Citizen c1, Citizen c2)
+        {
+            int pos = randomizer.Next(0, text.Length);   
+
+            if (pos % 2 == 0)                                                      
+                c1.Str = c1.Str.Substring(0, pos) + c2.Str.Substring(pos, text.Length - pos);
+            else
+            {                     
+                string tmp = c1.Str.Substring(pos, text.Length - pos);
+                c1.Str = c2.Str.Substring(0, pos) + tmp;
+            }
+
+            if(randomizer.Next(0, 100) < 100 * mutation_rate)
+                Mutate(c1);                                  
         }
     }
 
     class Citizen
     {
-        public string str { get; set; } = "";
-        public int fitness { get; set; } = 0; 
+        public string Str { get; set; } = "";
+        public int Fitness { get; set; } = 0;                   
 
         public override string ToString()
         {
-            return str + " (" + fitness + ")";
+            return String.Format("{0} ({1})", Str, Fitness);
         }
     }
 }
